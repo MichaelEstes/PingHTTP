@@ -1,6 +1,6 @@
 //
-//  Http.swift
-//  PresenceLibrary
+//  PingHTTP.swift
+//  PingHTTP
 //
 //  Created by Michael Estes on 7/14/16.
 //  Copyright © 2016 Ticketmaster. All rights reserved.
