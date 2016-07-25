@@ -52,7 +52,7 @@ public class Post extends Request {
             urlTry: try{
                 URL url = new URL(requestUrl);
                 HttpURLConnection conn;
-                if(url.getProtocol().equals("HTTPS")){
+                if(url.getProtocol().equalsIgnoreCase("HTTPS")){
                     conn = this.createConnectionHTTPS(url);
                 } else {
                     conn = this.createConnectionHTTP(url);
