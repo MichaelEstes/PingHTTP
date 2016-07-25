@@ -1,5 +1,3 @@
-package com.ticketmaster.presencelibrary;
-
 import android.support.v4.util.Pair;
 
 import com.ticketmaster.presencelibrary.PingHTTP.Get;
