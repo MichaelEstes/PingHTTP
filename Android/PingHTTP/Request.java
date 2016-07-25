@@ -76,6 +76,10 @@ public abstract class Request {
         conn.setReadTimeout(timeout);
         conn.setConnectTimeout(timeout);
     }
+    
+    boolean validString(String str){
+        return str != null && !str.isEmpty();
+    }
 
     public abstract Pair<String, Integer> req();
     public abstract boolean isValid();
