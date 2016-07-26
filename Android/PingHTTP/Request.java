@@ -1,6 +1,8 @@
 import android.support.v4.util.Pair;
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,6 +35,7 @@ public abstract class Request {
         return "";
     }
 
+
     HttpsURLConnection createConnectionHTTPS(URL url){
         connTry: try{
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -43,7 +46,7 @@ public abstract class Request {
             addProperties(conn);
             setTimeouts(conn);
             return conn;
-        } catch (Exception e){
+        }catch (Exception e){
             Log.e(TAG, "createConnection: Error creating HTTPS connection", e);
         }
 
@@ -57,11 +60,38 @@ public abstract class Request {
             addProperties(conn);
             setTimeouts(conn);
             return conn;
-        } catch (Exception e){
+        }catch (Exception e){
             Log.e(TAG, "createConnection: Error creating HTTP connection", e);
         }
 
         return null;
+    }
+
+    Pair<String, Integer> getConnectionResponse(HttpURLConnection conn){
+        try{
+            String responseMessage = "";
+            int responseCode = conn.getResponseCode();
+
+            if(responseCode < 300){
+                try{
+                    responseMessage = IOUtils.toString(conn.getInputStream(), "UTF-8");
+                } catch (Exception e){
+                    Log.e(TAG, "req: Couldn't get response message stream", e);
+                }
+            }else{
+                try{
+                    responseMessage = IOUtils.toString(conn.getErrorStream(), "UTF-8");
+                }catch (Exception e){
+                    Log.e(TAG, "req: Couldn't get response error stream", e);
+                }
+            }
+
+            return new Pair<>(responseMessage, responseCode);
+        }catch (Exception e){
+            Log.e(TAG, "getConnectionResponse: Error getting response", e);
+        }
+
+        return new Pair<>("Error", -1);
     }
 
     private void addProperties(URLConnection conn){
@@ -76,7 +106,7 @@ public abstract class Request {
         conn.setReadTimeout(timeout);
         conn.setConnectTimeout(timeout);
     }
-    
+
     boolean validString(String str){
         return str != null && !str.isEmpty();
     }
