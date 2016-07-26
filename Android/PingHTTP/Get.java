@@ -1,13 +1,9 @@
 import android.support.v4.util.Pair;
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-
-import static com.ticketmaster.presencelibrary.Utils.Utils.validString;
 
 /**
  * Created by Michael.Estes on 7/19/16.
@@ -57,7 +53,8 @@ public class Get extends Request {
                 if(conn == null){break urlTry;}
                 conn.setRequestMethod(this.method);
                 conn.connect();
-                return new Pair<>(IOUtils.toString(conn.getInputStream(), "UTF-8"), conn.getResponseCode());
+
+                return getConnectionResponse(conn);
             }catch (Exception e){
                 Log.e(TAG, "req: couldn't connect to URL", e);
             }
