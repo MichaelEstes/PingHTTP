@@ -3,7 +3,6 @@
 //  PingHTTP
 //
 //  Created by Michael Estes on 7/15/16.
-//  Copyright © 2016 Ticketmaster. All rights reserved.
 //
 
 import Foundation
