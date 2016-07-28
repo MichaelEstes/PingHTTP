@@ -29,8 +29,23 @@ public class PingHTTPTests {
     }
 
     @Test
+    public void getInvalidTestTwo() {
+        Get get = new Get("url", "");
+        assertFalse(get.isValid());
+    }
+
+    @Test
     public void postValidTest() {
         Post post = new Post("url", "endpoint", "body");
+        assertTrue(post.isValid());
+    }
+
+    @Test
+    public void postValidTestTwo() {
+        ArrayList<Pair<String, String>> params = new ArrayList<>();
+        params.add(new Pair<>("testParamOne", "testParamOne"));
+        params.add(new Pair<>("testParamTwo", "testParamTwo"));
+        Post post = new Post("url", "endpoint", "body", params, 0);
         assertTrue(post.isValid());
     }
 
@@ -38,6 +53,25 @@ public class PingHTTPTests {
     public void postInvalidTest() {
         Post post = new Post("", "", "");
         assertFalse(post.isValid());
+    }
+
+    @Test
+    public void postInvalidTestTwo() {
+        Post post = new Post("url", "", "");
+        assertFalse(post.isValid());
+    }
+
+    @Test
+    public void postInvalidTestThree() {
+        Post post = new Post("url", "endpoint", "");
+        assertFalse(post.isValid());
+    }
+
+
+    @Test
+    public void reqInvalidTest() {
+        Get get = new Get("", "");
+        assertFalse(get.req() == new Pair<>("Error", -1));
     }
 
     @Test
@@ -74,6 +108,35 @@ public class PingHTTPTests {
     }
 
     @Test
+    public void connectionGetHTTPNoParamsValidTest() {
+        ArrayList<Pair<String, String>> properties = new ArrayList<>();
+        properties.add(new Pair<>("Test-Authorization", "testAuth"));
+        properties.add(new Pair<>("test-api-key", "testApiKey"));
+
+        Get get = new Get("http://httpbin.org", "/get", properties);
+        Pair<String, Integer> response = get.req();
+
+        assertTrue(response.second == 200);
+    }
+
+    @Test
+    public void connectionGetHTTPNoPropertiesValidTest() {
+        Get get = new Get("http://httpbin.org", "/get", null);
+        Pair<String, Integer> response = get.req();
+
+        assertTrue(response.second == 200);
+    }
+
+    @Test
+    public void connectionGetHTTPNoPropertiesValidTestTwo() {
+        ArrayList<Pair<String, String>> properties = new ArrayList<>();
+        Get get = new Get("http://httpbin.org", "/get", properties);
+        Pair<String, Integer> response = get.req();
+
+        assertTrue(response.second == 200);
+    }
+
+    @Test
     public void connectionGetHTTPSValidTest() {
         ArrayList<Pair<String, String>> params = new ArrayList<>();
         params.add(new Pair<>("testParamOne", "testParamOne"));
@@ -104,7 +167,6 @@ public class PingHTTPTests {
 
         assertTrue(response.second == -1);
     }
-
 
     @Test
     public void connectionPostHTTPValidTest() {
@@ -155,6 +217,24 @@ public class PingHTTPTests {
         String badBody = "";
 
         Post post = new Post("badurl", "/get", badBody, properties, params);
+        Pair<String, Integer> response = post.req();
+
+        assertTrue(response.second == -1);
+    }
+
+    @Test
+    public void connectionPostInvalidTestTwo() {
+        ArrayList<Pair<String, String>> params = new ArrayList<>();
+        params.add(new Pair<>("testParamOne", "testParamOne"));
+        params.add(new Pair<>("testParamTwo", "testParamTwo"));
+
+        ArrayList<Pair<String, String>> properties = new ArrayList<>();
+        properties.add(new Pair<>("Test-Authorization", "testAuth"));
+        properties.add(new Pair<>("test-api-key", "testApiKey"));
+
+        String body = "valid body";
+
+        Post post = new Post("badurl", "/get", body, properties, params);
         Pair<String, Integer> response = post.req();
 
         assertTrue(response.second == -1);
