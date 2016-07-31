@@ -10,11 +10,10 @@ import java.util.ArrayList;
  */
 
 public class Get extends Request {
-    final String method = "GET";
-
     public Get(String url, String endpoint){
         this.url = url;
         this.endpoint = endpoint;
+        this.method = "GET";
     }
 
     public Get(String url, String endpoint, ArrayList<Pair<String, String>> properties){
@@ -36,24 +35,13 @@ public class Get extends Request {
     @Override
     public Pair<String, Integer> req() {
         if(this.isValid()){
-            String requestUrl = this.url;
-            requestUrl += this.endpoint;
-            if(this.params != null && !this.params.isEmpty()){
-                requestUrl += this.formatParams();
-            }
+            String requestUrl = createUrl();
 
             urlTry: try{
                 URL url = new URL(requestUrl);
                 HttpURLConnection conn;
-                if(url.getProtocol().equalsIgnoreCase("HTTPS")){
-                    conn = this.createConnectionHTTPS(url);
-                } else {
-                    conn = this.createConnectionHTTP(url);
-                }
+                conn = createConnection(url);
                 if(conn == null){break urlTry;}
-                conn.setRequestMethod(this.method);
-                conn.connect();
-
                 return getConnectionResponse(conn);
             }catch (Exception e){
                 Log.e(TAG, "req: couldn't connect to URL", e);
