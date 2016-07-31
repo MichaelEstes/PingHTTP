@@ -23,9 +23,51 @@ public abstract class Request {
     String endpoint;
     ArrayList<Pair<String, String>> properties;
     ArrayList<Pair<String, String>> params;
+    String method;
 
-    public String formatParams(){
-        if(this.params != null && !this.params.isEmpty()){
+    String createUrl(){
+        String requestUrl = this.url;
+        requestUrl += this.endpoint;
+        if(this.validParams()){
+            requestUrl += this.formatParams();
+        }
+
+        return requestUrl;
+    }
+
+    HttpURLConnection createConnection(URL url){
+        HttpURLConnection conn;
+        if(url.getProtocol().equalsIgnoreCase("HTTPS")){
+            conn = this.createConnectionHTTPS(url);
+        } else {
+            conn = this.createConnectionHTTP(url);
+        }
+        return conn;
+    }
+
+    Pair<String, Integer> getConnectionResponse(HttpURLConnection conn){
+        try{
+            String responseMessage = "";
+            int responseCode = conn.getResponseCode();
+            if(responseCode < 300){
+                responseMessage = IOUtils.toString(conn.getInputStream(), "UTF-8");
+            }else{
+                responseMessage = IOUtils.toString(conn.getErrorStream(), "UTF-8");
+            }
+            return new Pair<>(responseMessage, responseCode);
+        }catch (Exception e){
+            Log.e(TAG, "getConnectionResponse: Error getting response", e);
+        }
+
+        return new Pair<>("Error", -1);
+    }
+
+    private boolean validParams(){
+        return this.params != null && !this.params.isEmpty();
+    }
+
+    private String formatParams(){
+        if(this.validParams()){
             String formattedParams = "?";
             for(Pair<String, String> param : this.params){
                 formattedParams += param.first+"="+param.second+"&";
@@ -35,8 +77,7 @@ public abstract class Request {
         return "";
     }
 
-
-    HttpsURLConnection createConnectionHTTPS(URL url){
+    private HttpsURLConnection createConnectionHTTPS(URL url){
         connTry: try{
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             if(conn == null){break connTry;}
@@ -45,53 +86,30 @@ public abstract class Request {
             conn.setSSLSocketFactory(sc.getSocketFactory());
             addProperties(conn);
             setTimeouts(conn);
+            conn.setRequestMethod(this.method);
+            conn.connect();
             return conn;
-        }catch (Exception e){
+        } catch (Exception e){
             Log.e(TAG, "createConnection: Error creating HTTPS connection", e);
         }
 
         return null;
     }
 
-    HttpURLConnection createConnectionHTTP(URL url){
+    private HttpURLConnection createConnectionHTTP(URL url){
         connTry: try{
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             if(conn == null){break connTry;}
             addProperties(conn);
             setTimeouts(conn);
+            conn.setRequestMethod(this.method);
+            conn.connect();
             return conn;
-        }catch (Exception e){
+        } catch (Exception e){
             Log.e(TAG, "createConnection: Error creating HTTP connection", e);
         }
 
         return null;
-    }
-
-    Pair<String, Integer> getConnectionResponse(HttpURLConnection conn){
-        try{
-            String responseMessage = "";
-            int responseCode = conn.getResponseCode();
-
-            if(responseCode < 300){
-                try{
-                    responseMessage = IOUtils.toString(conn.getInputStream(), "UTF-8");
-                } catch (Exception e){
-                    Log.e(TAG, "req: Couldn't get response message stream", e);
-                }
-            }else{
-                try{
-                    responseMessage = IOUtils.toString(conn.getErrorStream(), "UTF-8");
-                }catch (Exception e){
-                    Log.e(TAG, "req: Couldn't get response error stream", e);
-                }
-            }
-
-            return new Pair<>(responseMessage, responseCode);
-        }catch (Exception e){
-            Log.e(TAG, "getConnectionResponse: Error getting response", e);
-        }
-
-        return new Pair<>("Error", -1);
     }
 
     private void addProperties(URLConnection conn){
@@ -105,10 +123,6 @@ public abstract class Request {
     private void setTimeouts(URLConnection conn){
         conn.setReadTimeout(timeout);
         conn.setConnectTimeout(timeout);
-    }
-
-    boolean validString(String str){
-        return str != null && !str.isEmpty();
     }
 
     public abstract Pair<String, Integer> req();
