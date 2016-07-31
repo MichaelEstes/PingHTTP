@@ -12,12 +12,12 @@ import java.util.ArrayList;
 
 public class Post extends Request {
     String body;
-    final String method = "POST";
 
     public Post(String url, String endpoint, String body){
         this.url = url;
         this.endpoint = endpoint;
         this.body = body;
+        method = "POST";
     }
 
     public Post(String url, String endpoint, String body, ArrayList<Pair<String, String>> properties){
@@ -39,23 +39,13 @@ public class Post extends Request {
     @Override
     public Pair<String, Integer> req() {
         if(this.isValid()){
-            String requestUrl = this.url;
-            requestUrl += this.endpoint;
-            if(this.params != null && !this.params.isEmpty()){
-                requestUrl += this.formatParams();
-            }
+            String requestUrl = createUrl();
 
             urlTry: try{
                 URL url = new URL(requestUrl);
                 HttpURLConnection conn;
-                if(url.getProtocol().equalsIgnoreCase("HTTPS")){
-                    conn = this.createConnectionHTTPS(url);
-                } else {
-                    conn = this.createConnectionHTTP(url);
-                }
+                conn = createConnection(url);
                 if(conn == null){break urlTry;}
-                conn.setRequestMethod(this.method);
-                conn.connect();
 
                 DataOutputStream dataOut = new DataOutputStream(conn.getOutputStream());
                 dataOut.writeBytes(this.body);
