@@ -1,3 +1,5 @@
+package com.michaelestes.pinghttp;
+
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -28,9 +30,7 @@ public abstract class Request {
     String createUrl(){
         String requestUrl = this.url;
         requestUrl += this.endpoint;
-        if(this.validParams()){
-            requestUrl += this.formatParams();
-        }
+        requestUrl += this.formatParams();
 
         return requestUrl;
     }
@@ -60,6 +60,10 @@ public abstract class Request {
         }
 
         return new Pair<>("Error", -1);
+    }
+
+    boolean validString(String str){
+        return str != null && !str.isEmpty();
     }
 
     private boolean validParams(){

@@ -1,0 +1,36 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.0-alpha6'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+    }
+}
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = 'michaelestes'
+    key = '66a9434afaa705491a16122e5f23ae5722293c0b'
+    pkg {
+        repo = 'maven'
+        name = 'ping-http'
+        userOrg = user
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/MichaelEstes/PingHTTP.git'
+        version {
+            name = '1.0.0'
+            desc = 'PingHTTP for Android 1.0.0'
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

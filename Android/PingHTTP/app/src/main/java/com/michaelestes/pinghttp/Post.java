@@ -1,6 +1,9 @@
+package com.michaelestes.pinghttp;
+
 import android.support.v4.util.Pair;
 import android.util.Log;
 
+import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,25 +12,28 @@ import java.util.ArrayList;
  * Created by Michael.Estes on 7/19/16.
  */
 
-public class Get extends Request {
-    public Get(String url, String endpoint){
+public class Post extends Request {
+    String body;
+
+    public Post(String url, String endpoint, String body){
         this.url = url;
         this.endpoint = endpoint;
-        this.method = "GET";
+        this.body = body;
+        method = "POST";
     }
 
-    public Get(String url, String endpoint, ArrayList<Pair<String, String>> properties){
-        this(url, endpoint);
+    public Post(String url, String endpoint, String body, ArrayList<Pair<String, String>> properties){
+        this(url, endpoint, body);
         this.properties = properties;
     }
 
-    public Get(String url, String endpoint, ArrayList<Pair<String, String>> params, int ignore){
-        this(url, endpoint);
+    public Post(String url, String endpoint, String body, ArrayList<Pair<String, String>> params, int ignore){
+        this(url, endpoint, body);
         this.params = params;
     }
 
-    public Get(String url, String endpoint, ArrayList<Pair<String, String>> properties, ArrayList<Pair<String, String>> params){
-        this(url, endpoint);
+    public Post(String url, String endpoint, String body, ArrayList<Pair<String, String>> properties, ArrayList<Pair<String, String>> params){
+        this(url, endpoint, body);
         this.properties = properties;
         this.params = params;
     }
@@ -42,6 +48,12 @@ public class Get extends Request {
                 HttpURLConnection conn;
                 conn = createConnection(url);
                 if(conn == null){break urlTry;}
+
+                DataOutputStream dataOut = new DataOutputStream(conn.getOutputStream());
+                dataOut.writeBytes(this.body);
+                dataOut.flush();
+                dataOut.close();
+
                 return getConnectionResponse(conn);
             }catch (Exception e){
                 Log.e(TAG, "req: couldn't connect to URL", e);
@@ -52,6 +64,6 @@ public class Get extends Request {
 
     @Override
     public boolean isValid(){
-        return validString(this.url) && validString(this.endpoint);
+        return validString(this.url) && validString(this.endpoint) && validString(this.body);
     }
 }
