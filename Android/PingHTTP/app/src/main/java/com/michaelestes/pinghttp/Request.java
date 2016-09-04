@@ -28,6 +28,10 @@ public abstract class Request {
     String method;
 
     String createUrl(){
+        Log.i(TAG, "createUrl: " +
+                    "\nMethod: " + this.method +
+                    "\nURL: " + this.url +
+                    "\n Endpoint: " + this. endpoint);
         String requestUrl = this.url;
         requestUrl += this.endpoint;
         requestUrl += this.formatParams();
@@ -54,9 +58,13 @@ public abstract class Request {
             }else{
                 responseMessage = IOUtils.toString(conn.getErrorStream(), "UTF-8");
             }
+            Log.i(TAG, "Status: " + responseCode +
+                        "\nMessage: " + responseMessage);
             return new Pair<>(responseMessage, responseCode);
         }catch (Exception e){
             Log.e(TAG, "getConnectionResponse: Error getting response", e);
+        } finally {
+            conn.disconnect();
         }
 
         return new Pair<>("Error", -1);
@@ -76,7 +84,9 @@ public abstract class Request {
             for(Pair<String, String> param : this.params){
                 formattedParams += param.first+"="+param.second+"&";
             }
-            return formattedParams.substring(0, formattedParams.length() - 1);
+            formattedParams =  formattedParams.substring(0, formattedParams.length() - 1);
+            Log.i(TAG, "Params: " + formattedParams);
+            return formattedParams;
         }
         return "";
     }

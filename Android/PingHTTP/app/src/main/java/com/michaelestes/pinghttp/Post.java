@@ -48,7 +48,7 @@ public class Post extends Request {
                 HttpURLConnection conn;
                 conn = createConnection(url);
                 if(conn == null){break urlTry;}
-
+                Log.i(TAG, "Body :" + this.body);
                 DataOutputStream dataOut = new DataOutputStream(conn.getOutputStream());
                 dataOut.writeBytes(this.body);
                 dataOut.flush();
