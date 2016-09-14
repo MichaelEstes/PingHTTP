@@ -20,7 +20,7 @@ import javax.net.ssl.SSLContext;
 public abstract class Request {
     final String TAG = "PingHTTP";
 
-    int timeout = 10000;
+    public int timeout = 10000;
     String url;
     String endpoint;
     ArrayList<Pair<String, String>> properties;
