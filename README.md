@@ -16,7 +16,17 @@ Android
     properties.add(new Pair<>("test-api-key", "testApiKey"));
     
     Get get = new Get("http://httpbin.org", "/get", properties, params);
-    Pair<String, Integer> response = get.req();
+    get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    //Handle body and response
+                }
+
+                @Override
+                public void onError(Response response) {
+                    //Handle error
+                }
+    });
     
   Post Example:
   
@@ -31,7 +41,18 @@ Android
     String body = "Test body";
     
     Post post = new Post("http://httpbin.org", "/post", body ,properties, params);
-    Pair<String, Integer> response = post.req();
+    post.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    //Handle body and response
+                }
+
+                @Override
+                public void onError(Response response) {
+                    //Handle error
+                }
+    });
+
     
 Swift
 
