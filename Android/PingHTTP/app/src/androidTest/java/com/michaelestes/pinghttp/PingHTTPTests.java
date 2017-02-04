@@ -1,6 +1,7 @@
 package com.michaelestes.pinghttp;
 
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import org.junit.Test;
 
@@ -80,7 +81,17 @@ public class PingHTTPTests {
     @Test
     public void reqInvalidTest() {
         Get get = new Get("", "");
-        assertFalse(get.req() == new Pair<>("Error", -1));
+        get.req(new ResponseCallback() {
+            @Override
+            public void onSuccess(Response response) {
+                assertTrue(false);
+            }
+
+            @Override
+            public void onError(Response response) {
+                assertTrue(response.error);
+            }
+        });
     }
 
     @Test
@@ -100,9 +111,19 @@ public class PingHTTPTests {
             properties.add(new Pair<>("test-api-key", "testApiKey"));
 
             Get get = new Get(url, "/get", properties, params);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -122,9 +143,19 @@ public class PingHTTPTests {
             properties.add(new Pair<>("test-api-key", "testApiKey"));
 
             Get get = new Get(url, "/get", properties);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -146,9 +177,19 @@ public class PingHTTPTests {
             properties.add(new Pair<>("test-api-key", "testApiKey"));
 
             Get get = new Get(url, "/get", properties, params);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -164,9 +205,19 @@ public class PingHTTPTests {
             String url = "http://" + server.getHostName() + ":" + server.getPort();
 
             Get get = new Get(url, "/get", null);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -186,9 +237,19 @@ public class PingHTTPTests {
             params.add(new Pair<>("testParamTwo", "testParamTwo"));
 
             Get get = new Get(url, "/get", params, 0);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -205,9 +266,19 @@ public class PingHTTPTests {
 
             ArrayList<Pair<String, String>> properties = new ArrayList<>();
             Get get = new Get(url, "/get", properties);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 200);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -232,9 +303,19 @@ public class PingHTTPTests {
             properties.add(new Pair<>("test-api-key", "testApiKey"));
 
             Get get = new Get(url, "/get", properties, params);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == -1);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(false);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -252,9 +333,18 @@ public class PingHTTPTests {
         properties.add(new Pair<>("test-api-key", "testApiKey"));
 
         Get get = new Get("badurl", "/get", properties, params);
-        Pair<String, Integer> response = get.req();
 
-        assertTrue(response.second == -1);
+        get.req(new ResponseCallback() {
+            @Override
+            public void onSuccess(Response response) {
+                assertTrue(false);
+            }
+
+            @Override
+            public void onError(Response response) {
+                assertTrue(response.error);
+            }
+        });
     }
 
     @Test
@@ -267,9 +357,19 @@ public class PingHTTPTests {
 
             ArrayList<Pair<String, String>> properties = new ArrayList<>();
             Get get = new Get(url, "/get", properties);
-            Pair<String, Integer> response = get.req();
 
-            assertTrue(response.second == 500);
+            get.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(false);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -295,9 +395,19 @@ public class PingHTTPTests {
             String body = "Test body";
 
             Post post = new Post(url, "/post", body ,properties, params);
-            Pair<String, Integer> response = post.req();
 
-            assertTrue(response.second == 200);
+            post.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -319,9 +429,19 @@ public class PingHTTPTests {
             String body = "Test body";
 
             Post post = new Post(url, "/post", body ,properties);
-            Pair<String, Integer> response = post.req();
 
-            assertTrue(response.second == 200);
+            post.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(response.responseCode == 200);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -348,9 +468,19 @@ public class PingHTTPTests {
             String body = "Test body";
 
             Post post = new Post(url, "/post", body ,properties, params);
-            Pair<String, Integer> response = post.req();
 
-            assertTrue(response.second == -1);
+            post.req(new ResponseCallback() {
+                @Override
+                public void onSuccess(Response response) {
+                    assertTrue(false);
+                }
+
+                @Override
+                public void onError(Response response) {
+                    assertTrue(response.error);
+                }
+            });
+
             server.shutdown();
         }catch (Exception e){
             assertTrue(false);
@@ -370,9 +500,18 @@ public class PingHTTPTests {
         String badBody = "";
 
         Post post = new Post("badurl", "/get", badBody, properties, params);
-        Pair<String, Integer> response = post.req();
 
-        assertTrue(response.second == -1);
+        post.req(new ResponseCallback() {
+            @Override
+            public void onSuccess(Response response) {
+                assertTrue(false);
+            }
+
+            @Override
+            public void onError(Response response) {
+                assertTrue(response.error);
+            }
+        });
     }
 
     @Test
@@ -388,9 +527,18 @@ public class PingHTTPTests {
         String body = "valid body";
 
         Post post = new Post("badurl", "/get", body, properties, params);
-        Pair<String, Integer> response = post.req();
 
-        assertTrue(response.second == -1);
+        post.req(new ResponseCallback() {
+            @Override
+            public void onSuccess(Response response) {
+                assertTrue(false);
+            }
+
+            @Override
+            public void onError(Response response) {
+                assertTrue(response.error);
+            }
+        });
     }
 }
 

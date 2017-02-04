@@ -12,8 +12,10 @@ import java.util.ArrayList;
  * Created by Michael.Estes on 7/19/16.
  */
 
-public class Post extends Request {
+public class Post extends Request implements RequestInterface {
     String body;
+
+    Post(){}
 
     public Post(String url, String endpoint, String body){
         this.url = url;
@@ -39,13 +41,20 @@ public class Post extends Request {
     }
 
     @Override
-    public Pair<String, Integer> req() {
+    public void req(ResponseCallback responseCallback) {
+        ResponseTask responseTask = new ResponseTask(this, responseCallback);
+        responseTask.execute();
+    }
+
+    @Override
+    public Response getResponse() {
         if(this.isValid()){
             String requestUrl = createUrl();
 
             urlTry: try{
                 URL url = new URL(requestUrl);
                 HttpURLConnection conn;
+                long startTime = System.currentTimeMillis();
                 conn = createConnection(url);
                 if(conn == null){break urlTry;}
                 Log.i(TAG, "Body :" + this.body);
@@ -53,13 +62,20 @@ public class Post extends Request {
                 dataOut.writeBytes(this.body);
                 dataOut.flush();
                 dataOut.close();
+                Response response = getConnectionResponse(conn);
+                long responseTime = System.currentTimeMillis() - startTime;
+                Log.i(TAG, "req: " + responseTime + "ms responseCallback time");
 
-                return getConnectionResponse(conn);
+                return response;
             }catch (Exception e){
                 Log.e(TAG, "req: couldn't connect to URL", e);
+                return new Response(EXCEPTION, e.toString().getBytes(), true);
             }
+        } else {
+            return new Response(NOT_VALID, null, true);
         }
-        return new Pair<>("Error", -1);
+
+        return new Response(INVALID_CONNECTION, null, true);
     }
 
     @Override

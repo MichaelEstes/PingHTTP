@@ -1,5 +1,6 @@
 package com.michaelestes.pinghttp;
 
+import android.os.AsyncTask;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -27,11 +28,10 @@ public abstract class Request {
     ArrayList<Pair<String, String>> params;
     String method;
 
+    public static final int INVALID_CONNECTION = -3, NOT_VALID = -2, EXCEPTION = -1;
+
     String createUrl(){
-        Log.i(TAG, "createUrl: " +
-                    "\nMethod: " + this.method +
-                    "\nURL: " + this.url +
-                    "\n Endpoint: " + this. endpoint);
+        Log.i(TAG, "Method: " + this.method + "\nURL: " + this.url + "\n Endpoint: " + this. endpoint);
         String requestUrl = this.url;
         requestUrl += this.endpoint;
         requestUrl += this.formatParams();
@@ -49,25 +49,27 @@ public abstract class Request {
         return conn;
     }
 
-    Pair<String, Integer> getConnectionResponse(HttpURLConnection conn){
+    Response getConnectionResponse(HttpURLConnection conn){
+        Response response = new Response();
         try{
-            String responseMessage = "";
+            byte[] responseBody;
+            boolean error = false;
             int responseCode = conn.getResponseCode();
             if(responseCode < 300){
-                responseMessage = IOUtils.toString(conn.getInputStream(), "UTF-8");
+                responseBody = IOUtils.toByteArray(conn.getInputStream());
             }else{
-                responseMessage = IOUtils.toString(conn.getErrorStream(), "UTF-8");
+                responseBody = IOUtils.toByteArray(conn.getErrorStream());
+                error = true;
             }
-            Log.i(TAG, "Status: " + responseCode +
-                        "\nMessage: " + responseMessage);
-            return new Pair<>(responseMessage, responseCode);
+            Log.i(TAG, "Status: " + responseCode);
+            response = new Response(responseCode, responseBody, error);
         }catch (Exception e){
             Log.e(TAG, "getConnectionResponse: Error getting response", e);
         } finally {
             conn.disconnect();
         }
 
-        return new Pair<>("Error", -1);
+        return response;
     }
 
     boolean validString(String str){
@@ -139,6 +141,28 @@ public abstract class Request {
         conn.setConnectTimeout(timeout);
     }
 
-    public abstract Pair<String, Integer> req();
-    public abstract boolean isValid();
+
+    class ResponseTask extends AsyncTask<Void, Void, Response> {
+        RequestInterface request;
+        ResponseCallback responseCallback;
+
+        ResponseTask(RequestInterface request, ResponseCallback responseCallback){
+            this.request = request;
+            this.responseCallback = responseCallback;
+        }
+
+        @Override
+        protected Response doInBackground(Void... voids) {
+            return request.getResponse();
+        }
+
+        @Override
+        protected void onPostExecute(Response response) {
+            if(response != null && !response.error){
+                responseCallback.onSuccess(response);
+            } else {
+                responseCallback.onError(response);
+            }
+        }
+    }
 }
